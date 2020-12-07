@@ -5,8 +5,16 @@ config = {
     'bBandWidth' : '1 - 3',
     'rsiPeriod' : 'RSI evaluation length',
     'rsiMod' : 'RSI dynamic modification constant',
-    'maRange' : 'Moving average evaluation length',
-    'maType' : 'Moving average type',
+    'maLongRange' : 'Moving average evaluation length',
+    'maLongType' : 'Moving average type',
+    'maShortRange' : 'Moving average evaluation length',
+    'maShortType' : 'Moving average type',
     'targetNet' : 'Target / minimum positive percent change on every position',
     'sLoss' : 'Stop loss percentage'
+    #SQL server
+    'user': 'user'
+    'password': 'pass'
+    'host': 'localhost or other'
+    'database': 'db'
+    'raise_on_warnings': 'boolean'
 }

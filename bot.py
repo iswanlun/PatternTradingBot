@@ -1,13 +1,12 @@
-import websocket, json, pprint, talib, time
-
+import websocket, json, pprint, time
+from Config import config
 from PositionManger import TickManager
 
-SOCKET = 'wss://stream.binance.com:9443/ws/ethusdt@kline_1m'
+SOCKET = config.get('socket')
 
 class bot:
 
     def __init__(self) -> None:
-        super().__init__()
         self.tickManger = TickManager()
 
     def on_open(self, ws):
