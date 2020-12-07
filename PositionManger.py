@@ -1,33 +1,33 @@
 
-'''
-The purpose of this class is to handle the calculation of positions.
-BUY, SELL, HOLD, NONE
-'''
+import json, talib
 
-from enum import Enum
+class Position:
 
-class Action(Enum):
-    BUY = 1
-    SELL = 2
-    NONE = 3
+    def __init__(self, inPosition=False, entryPoint=None) -> None:
+        self.inPosition = inPosition
+        self.entryPoint = entryPoint
+        self.exitPoint = None
 
-class Position(Enum):
-    IN_POSITION = 1
-    NO_POSITION = 2
+    def exit(self, exitPoint) -> float:
+        self.inPosition = False
+        self.exitPoint = exitPoint
+        return self.exitPoint - self.entryPoint
 
 
-class TickManger:
+class TickManager:
 
-    def __init__(self, position=Position.NO_POSITION):
-        super().__init__()
-        self.position = position
-        self.action = Action.NONE
-
-    def get_action(self) -> Action:
-        return self.action
+    def __init__(self)  -> None:
+        self.position = None
     
-    def set_position(self, position):
-        self.position = position
+    def __enter_position(self, entryPoint) -> None:
+        self.position = Position(True, entryPoint)
 
-    def next_tick(jsonData):
-        pass
+    def __exit_position(self, exitPoint) -> None:
+        self.position.exit(exitPoint)
+
+    def next_tick(jsonData: object) -> str:
+        
+        
+        
+
+        return "?"
