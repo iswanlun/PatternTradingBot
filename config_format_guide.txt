@@ -1,0 +1,12 @@
+
+config = {
+    'period' : 'Time interval, single candlestick',
+    'bBandRange' : 'Bollinger Band evaluation length',
+    'bBandWidth' : '1 - 3',
+    'rsiPeriod' : 'RSI evaluation length',
+    'rsiMod' : 'RSI dynamic modification constant',
+    'maRange' : 'Moving average evaluation length',
+    'maType' : 'Moving average type',
+    'targetNet' : 'Target / minimum positive percent change on every position',
+    'sLoss' : 'Stop loss percentage'
+}
