@@ -1,14 +1,15 @@
-import json, pprint, time, requests
+import pprint, time, requests, calendar, copy
 from Config import config
 from PositionManger import TickManager
 from Timer import RepeatTimer
 
-API = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+API = config['api']
+INIT = config['init']
 
 class bot:
 
     def __init__(self) -> None:
-        self.tickManager = TickManager()
+        self.tickManager = TickManager(self.trade_history())
         self.timer = RepeatTimer(2)
         self.timer.start(self)
     
@@ -19,5 +20,11 @@ class bot:
 
         self.tickManager.next_tick(jsonData)
 
-bot = bot()
+    def trade_history(self):
+        hist = INIT
+        hist = hist.replace("X", str(calendar.timegm(time.gmtime()) - 30000))
+        hist = hist.replace("Y", str(calendar.timegm(time.gmtime())))
+        initData = requests.get(hist).json()
+        return [x[1] for x in initData['prices']]
 
+bot = bot()
