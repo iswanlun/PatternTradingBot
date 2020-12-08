@@ -130,3 +130,6 @@ dmypy.json
 
 # config file
 Config.py
+
+# IDE artifacts
+.vscode/

@@ -1,5 +1,6 @@
 
 import talib, Config
+import numpy as np
 from Timer import RepeatTimer
 
 class Position:
@@ -31,8 +32,8 @@ class TickManager:
         print("Closing clandle") # DEBUG
 
     def __update(self):
-        self.movingAverage = talib.MA(self.tickHistory, timeperiod=25, matype=0)
-        self.rsi = talib.RSI(self.tickHistory, timeperiod=18)
+        self.movingAverage = talib.MA(np.array(self.tickHistory), timeperiod=25, matype=0)[-1]
+        self.rsi = talib.RSI(np.array(self.tickHistory), timeperiod=18)[-1]
         print(self.movingAverage) # DEBUG
         print(self.rsi) # DEBUG
     
@@ -54,6 +55,5 @@ class TickManager:
             self.tickHistory.append(tickPrice)
             self.__update()
             self.close = False
-            print(self.tickHistory) # DEBUG
         
 

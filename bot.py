@@ -1,6 +1,6 @@
-import pprint, time, requests, calendar, copy
+import pprint, time, requests, calendar
 from Config import config
-from PositionManger import TickManager
+from PositionManager import TickManager
 from Timer import RepeatTimer
 
 API = config['api']
