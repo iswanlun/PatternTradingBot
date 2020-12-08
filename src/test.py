@@ -1,7 +1,7 @@
 import websocket, json, pprint, talib, time
 import numpy as np
 from datetime import datetime
-from display_graphs import RSIGraph
+from src.display_graphs import RSIGraph
 
 
 

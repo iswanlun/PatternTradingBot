@@ -9,7 +9,7 @@ class RepeatTimer:
     def worker(self, target):
         while self.running:
             time.sleep(self.period)
-            target.event()
+            target()
 
     def start(self, target):
         self.running = True

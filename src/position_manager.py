@@ -1,16 +1,16 @@
 
 import talib
-from Config import config
+from src.config import config
 import numpy as np
-from Timer import RepeatTimer
+from src.tick_listener import TickListener
 
 class Position:
 
     def __init__(self, entryPoint) -> None:
-        self.inPosition = True
         self.entryPoint = entryPoint
-        self.exitPoint = None
         self.goal = config['targetNet'] * self.entryPoint
+        self.inPosition = True
+        self.exitPoint = None
 
     def notify(self, tickPrice):
         if tickPrice >= self.goal:
@@ -20,7 +20,7 @@ class Position:
         self.inPosition = False
         self.exitPoint = exitPoint  
 
-class TickManager:
+class TickManager(TickListener):
 
     def __init__(self, priceHistory)  -> None:  
         self.RSI_PERIOD = config['rsiPeriod']
@@ -31,15 +31,15 @@ class TickManager:
         self.MAX_POSITION_LOAD = config['positionLoad']
 
         self.positions = []
-        self.close = False
         self.tickHistory = priceHistory
-        print(self.tickHistory)
-        self.timer = RepeatTimer(self.PERIOD) 
-        self.timer.start(self)
 
-    def event(self):
-        self.close = True
-        print("Closing clandle") # DEBUG
+        print(self.tickHistory) # DEBUG
+
+    def close_event(self, tickPrice):
+        self.tickHistory.append(tickPrice)
+        self.__update(tickPrice)
+
+        print("Closing candle") # DEBUG
 
     def __update(self, tickPrice):
         self.rsi = talib.RSI(np.array(self.tickHistory), self.RSI_PERIOD)[-1]
@@ -54,17 +54,10 @@ class TickManager:
         if len(self.positions) < self.MAX_POSITION_LOAD:
             self.positions.append(Position(entryPoint))
 
-    def next_tick(self, jsonData):
-
-        tickPrice = jsonData['ethereum']['usd']
+    def tick_event(self, tickPrice):
 
         for x in self.positions:
             if not x.inPosition:
                 self.positions.remove(x)
             else:
                 x.notify(tickPrice)
-
-        if self.close:
-            self.tickHistory.append(tickPrice)
-            self.__update(tickPrice)
-            self.close = False

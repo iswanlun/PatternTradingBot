@@ -1,13 +1,14 @@
-import Config
+
 import mysql.connector
 from mysql.connector import errorcode
+from src.config import config
 
 # https://dev.mysql.com/doc/connector-python/en/connector-python-example-cursor-select.html
 
 class Database:
 
     def __init__(self):
-        self.config = Config.config
+        pass
 
     # returns an array of tuples containing data on held positions
 
