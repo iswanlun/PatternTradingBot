@@ -133,3 +133,6 @@ Config.py
 
 # IDE artifacts
 .vscode/
+
+# depricated
+old/

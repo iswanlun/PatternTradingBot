@@ -1,8 +1,8 @@
 
 import talib
-from src.config import config
+from config import config
 import numpy as np
-from src.tick_listener import TickListener
+from tick_listener import TickListener
 
 class Position:
 
@@ -44,8 +44,8 @@ class TickManager(TickListener):
     def __update(self, tickPrice):
         self.rsi = talib.RSI(np.array(self.tickHistory), self.RSI_PERIOD)[-1]
         self.upper, self.middle, self.lower = talib.BBANDS(np.array(self.tickHistory), self.BB_PERIOD, self.BB_WIDTH, self.BB_WIDTH, self.BB_TYPE)
-        print("RSI " + self.rsi) # DEBUG
-        print("Lower BBand " + self.lower[-1]) # DEBUG
+        print("RSI " + str(self.rsi)) # DEBUG
+        print("Lower BBand " + str(self.lower[-1])) # DEBUG
 
         if (self.rsi < 30) & (tickPrice < self.lower[-1]):
             self.__enter_position()

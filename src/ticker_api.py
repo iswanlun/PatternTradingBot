@@ -1,5 +1,5 @@
 import json
-from src.tick_listener import TickListener
+from tick_listener import TickListener
 
 class TickerAPI:
 

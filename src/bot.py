@@ -1,6 +1,6 @@
 
-from src.position_manager import TickManager
-from src.coin_gecko import CoinGeckoTrader
+from position_manager import TickManager
+from coin_gecko import CoinGeckoTrader
 
 class Bot:
 

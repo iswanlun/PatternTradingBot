@@ -1,9 +1,9 @@
 
 import time, requests, calendar, pprint
-from src.tick_listener import TickListener
-from src.ticker_api import TickerAPI
-from src.timer import RepeatTimer
-from src.config import config
+from tick_listener import TickListener
+from ticker_api import TickerAPI
+from timer import RepeatTimer
+from config import config
 
 API = config['coinGeckoApi']
 HIST = config['coinGeckoHist']
@@ -13,7 +13,7 @@ class CoinGeckoTrader(TickerAPI):
     def __init__(self) -> None:
         self.listeners = []
         self.tickTimer = RepeatTimer(2)
-        self.closeTimer = RepeatTimer(300)
+        self.closeTimer = RepeatTimer(10)
         
     def add_listener(self, listener : TickListener):
         self.listeners.append(listener)
@@ -40,7 +40,7 @@ class CoinGeckoTrader(TickerAPI):
 
         pprint.pprint(jsonData) # DEBUG
 
-    def return_history() -> list:
+    def return_history(self) -> list:
         hist = HIST.replace("X", str(calendar.timegm(time.gmtime()) - 30000))
         hist = hist.replace("Y", str(calendar.timegm(time.gmtime())))
         histData = requests.get(hist).json()
