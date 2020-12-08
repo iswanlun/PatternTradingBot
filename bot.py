@@ -6,7 +6,7 @@ from Timer import RepeatTimer
 API = config['api']
 INIT = config['init']
 
-class bot:
+class Bot:
 
     def __init__(self) -> None:
         self.tickManager = TickManager(self.trade_history())
@@ -14,17 +14,15 @@ class bot:
         self.timer.start(self)
     
     def event(self):
-        responce = requests.get(API)
-        jsonData = responce.json()
+        jsonData = requests.get(API).json()
         pprint.pprint(jsonData)
 
         self.tickManager.next_tick(jsonData)
 
     def trade_history(self):
-        hist = INIT
-        hist = hist.replace("X", str(calendar.timegm(time.gmtime()) - 30000))
+        hist = INIT.replace("X", str(calendar.timegm(time.gmtime()) - 30000))
         hist = hist.replace("Y", str(calendar.timegm(time.gmtime())))
         initData = requests.get(hist).json()
-        return [x[1] for x in initData['prices']]
+        return [x[1] for x in initData['prices']][0::5]
 
-bot = bot()
+Bot()
