@@ -1,33 +1,23 @@
-import websocket, json, pprint, time
+import json, pprint, time, requests
 from Config import config
 from PositionManger import TickManager
+from Timer import RepeatTimer
 
-SOCKET = config.get('socket')
+API = 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
 
 class bot:
 
     def __init__(self) -> None:
-        self.tickManger = TickManager()
-
-    def on_open(self, ws):
-        print('Connection is established.')
-
-    def on_close(self, ws):
-        print('Connection terminated')
-        time.sleep(10)
-        self.run()
+        self.tickManager = TickManager()
+        self.timer = RepeatTimer(2)
+        self.timer.start(self)
     
-    def run(self):
-        self.ws = websocket.WebSocketApp(SOCKET, on_open=self.on_open, on_close=self.on_close, on_message=self.on_message)
-        self.ws.run_forever()
-
-    def on_message(self, ws, message):
-
-        jsonData = json.loads(message)
+    def event(self):
+        responce = requests.get(API)
+        jsonData = responce.json()
         pprint.pprint(jsonData)
 
-        self.tickManger(jsonData)
-
+        self.tickManager.next_tick(jsonData)
 
 bot = bot()
-bot.run()
+

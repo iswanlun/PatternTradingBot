@@ -1,5 +1,5 @@
 
-import json, talib
+import talib
 
 class Position:
 
@@ -18,6 +18,7 @@ class TickManager:
 
     def __init__(self)  -> None:
         self.position = None
+        self.tickHistory = []
     
     def __enter_position(self, entryPoint) -> None:
         self.position = Position(True, entryPoint)
@@ -25,9 +26,6 @@ class TickManager:
     def __exit_position(self, exitPoint) -> None:
         self.position.exit(exitPoint)
 
-    def next_tick(jsonData: object) -> str:
-        
-        
-        
-
-        return "?"
+    def next_tick(self, jsonData):
+        self.tickHistory.append(jsonData['ethereum']['usd'])
+        print(self.tickHistory)

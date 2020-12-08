@@ -1,5 +1,6 @@
 
 config = {
+    'socket' : 'Binance wss to use'
     'period' : 'Time interval, single candlestick',
     'bBandRange' : 'Bollinger Band evaluation length',
     'bBandWidth' : '1 - 3',
