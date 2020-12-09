@@ -3,22 +3,7 @@ import talib
 from config import config
 import numpy as np
 from tick_listener import TickListener
-
-class Position:
-
-    def __init__(self, entryPoint) -> None:
-        self.entryPoint = entryPoint
-        self.goal = config['targetNet'] * self.entryPoint
-        self.inPosition = True
-        self.exitPoint = None
-
-    def notify(self, tickPrice):
-        if tickPrice >= self.goal:
-            self.exit(tickPrice)
-
-    def exit(self, exitPoint):
-        self.inPosition = False
-        self.exitPoint = exitPoint  
+from position import Position
 
 class TickManager(TickListener):
 
@@ -30,7 +15,7 @@ class TickManager(TickListener):
         self.PERIOD = config['period']
         self.MAX_POSITION_LOAD = config['positionLoad']
 
-        self.positions = []
+        self.positions = Position.open_positions()
         self.tickHistory = priceHistory
 
         print(self.tickHistory) # DEBUG

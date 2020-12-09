@@ -1,18 +1,7 @@
 
-CREATE TABLE tick_history
-(time bigint,
-ticker_symbol varchar(10),
-price float,
-PRIMARY KEY (time, ticker_symbol));
 
-CREATE TABLE current_positions
-(entry_time bigint,
-ticker_symbol varchar(10),
-entry_price float,
-units int,
-PRIMARY KEY (entry_time, ticker_symbol));
 
-CREATE TABLE past_positions
+CREATE TABLE positions
 (entry_time bigint,
 ticker_symbol, varchar(10),
 entry_price float,

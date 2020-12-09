@@ -1,4 +1,5 @@
-import sqlite3
+import calendar, sqlite3, time
+from os import stat
 from database import Database
 from pathlib import Path
 from position_manager import Position
@@ -11,7 +12,7 @@ class Storage(Database):
 
         try:
             create = Path('db_table_creation.txt').read_text()
-            self.csr.execute(create)
+            self.csr.executescript(create)
         except sqlite3.DatabaseError:
             pass
 
@@ -31,29 +32,31 @@ class Storage(Database):
         except sqlite3.Error as e:
             print("CRITICAL ERROR - DATABASE FAILURE {} {}".format(e.__cause__, e.__traceback__))
 
-    def tick_history(self) -> list:
-
+    def open_positions(self) -> list:
         self.__open_connection()
 
-        selector = "SELECT * FROM tick_history"
-        self.csr.execute(selector)
+        select = "SELECT * FROM positions where exit_price=NULL"
+        self.csr.execute(select)
         
-        hist = []
+        open = []
 
         for n in len(self.csr.rowcount()):
-            row = self.csr.fetchone()
-            if row:
-                hist.append((row['price'], row['time']))
+            entryPoint = self.csr.fetchone()['entry_price']
+            open.append(Position(entryPoint))
 
         self.__close_connection()
-        return hist
-        
+        return open
 
-    def close_tick(self):
-        pass
-
-    def open_positions(self) -> list:
+    def close_position(position : Position):
+        timeStamp = str(calendar.timegm(time.gmtime()))
         pass
 
     def new_position(self, position : Position):
-        pass
+
+        self.__open_connection()
+
+
+
+        timeStamp = str(calendar.timegm(time.gmtime()))
+
+        self.__close_connection()
