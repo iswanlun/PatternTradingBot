@@ -2,7 +2,7 @@ import calendar, sqlite3, time
 from os import stat
 from database import Database
 from pathlib import Path
-from position_manager import Position
+from position import Position
 
 class Storage(Database):
     
@@ -40,23 +40,34 @@ class Storage(Database):
         
         open = []
 
-        for n in len(self.csr.rowcount()):
-            entryPoint = self.csr.fetchone()['entry_price']
-            open.append(Position(entryPoint))
+        for r in range(len(self.csr.rowcount())):
+            row = self.csr.fetchone()
+            open.append(Position(row['entry_price'], row['entry_time'], row['ticker_symbol'], row['units']))
 
         self.__close_connection()
         return open
 
-    def close_position(position : Position):
-        timeStamp = str(calendar.timegm(time.gmtime()))
-        pass
+    def close_position(self, position : Position):
+
+        self.__open_connection()
+
+        update = "UPDATE positions SET exit_time=?, exit_price=? WHERE entry_time=? AND ticker_symbol=?"
+        values = (position.entryTime, position.exitPoint, position.entryTime, position.symbol)
+
+        self.csr.execute(update, values)
+        self.conn.commit()
+
+        self.__close_connection()
+
 
     def new_position(self, position : Position):
 
         self.__open_connection()
 
+        insert = "INSERT INTO positions VALUES (?, ?, ?, ?)"
+        values = (position.entryTime, position.symbol, position.entryPoint, position.units)
 
-
-        timeStamp = str(calendar.timegm(time.gmtime()))
+        self.csr.execute(insert, values)
+        self.conn.commit()
 
         self.__close_connection()

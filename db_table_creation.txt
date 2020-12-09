@@ -1,6 +1,4 @@
 
-
-
 CREATE TABLE positions
 (entry_time bigint,
 ticker_symbol, varchar(10),

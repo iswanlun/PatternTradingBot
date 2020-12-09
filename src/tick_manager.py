@@ -4,6 +4,7 @@ from config import config
 import numpy as np
 from tick_listener import TickListener
 from position import Position
+from slq_lite_database import Storage
 
 class TickManager(TickListener):
 
@@ -14,8 +15,10 @@ class TickManager(TickListener):
         self.BB_TYPE = config['bBandType']
         self.PERIOD = config['period']
         self.MAX_POSITION_LOAD = config['positionLoad']
+        self.SYMBOL = config['tickerSymbol']
 
-        self.positions = Position.open_positions()
+        self.storage = Storage()
+        self.positions = self.storage.open_positions()
         self.tickHistory = priceHistory
 
         print(self.tickHistory) # DEBUG
@@ -37,12 +40,15 @@ class TickManager(TickListener):
         
     def __enter_position(self, entryPoint) -> None:
         if len(self.positions) < self.MAX_POSITION_LOAD:
-            self.positions.append(Position(entryPoint))
+            new_position = Position.create_position(entryPoint, self.SYMBOL)
+            self.storage.new_position(new_position)
+            self.positions.append(new_position)
 
     def tick_event(self, tickPrice):
 
-        for x in self.positions:
-            if not x.inPosition:
-                self.positions.remove(x)
+        for p in self.positions:
+            if not p.inPosition:
+                self.storage.close_position(p)
+                self.positions.remove(p)
             else:
-                x.notify(tickPrice)
+                p.notify(tickPrice)

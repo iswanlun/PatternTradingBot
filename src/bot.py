@@ -1,5 +1,5 @@
 
-from position_manager import TickManager
+from tick_manager import TickManager
 from coin_gecko import CoinGeckoTrader
 
 class Bot:

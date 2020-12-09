@@ -1,5 +1,5 @@
 
-from position_manager import Position
+from position import Position
 
 class Database:
     def open_positions() -> list:
