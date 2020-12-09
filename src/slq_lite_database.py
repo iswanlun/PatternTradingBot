@@ -32,22 +32,42 @@ class Storage(Database):
         except sqlite3.Error as e:
             print("CRITICAL ERROR - DATABASE FAILURE {} {}".format(e.__cause__, e.__traceback__))
 
+    def __open_row_connection(self):
+        try:
+            self.conn = sqlite3.connect("bot_history.db")
+            self.conn.row_factory = sqlite3.Row
+            self.csr = self.conn.cursor()
+        except sqlite3.Error as e:
+            print("CRITICAL ERROR - DATABASE FAILURE {} {}".format(e.__cause__, e.__traceback__))
+
+
     def open_positions(self) -> list:
-        self.__open_connection()
 
-        select = "SELECT * FROM positions where exit_price=NULL"
-        self.csr.execute(select)
-        
+        self.__open_row_connection()
+        self.csr.execute("SELECT * FROM positions WHERE exit_price IS NULL AND exit_time IS NULL")
+
         open = []
-
-        for r in range(self.csr.rowcount):
-            row = self.csr.fetchone()
-            open.append(Position(row['entry_price'], row['entry_time'], row['ticker_symbol'], row['units']))
+        rows = self.csr.fetchall()
+        for row in rows:
+            open.append(Position(row['entry_price'], row['ticker_symbol'], row['entry_time'], units=row['units']))
 
         self.__close_connection()
         return open
 
-    def close_position(self, position : Position):
+    def closed_positions(self) -> list:
+
+        self.__open_row_connection()
+        self.csr.execute("SELECT * FROM positions WHERE exit_price IS NOT NULL AND exit_time IS NOT NULL")
+
+        closed = []
+        rows = self.csr.fetchall()
+        for row in rows:
+            closed.append(Position(row['entry_price'], row['ticker_symbol'], row['entry_time'], units=row['units']))
+
+        self.__close_connection()
+        return closed
+
+    def close_position(self, position : Position)-> None:
 
         self.__open_connection()
 
@@ -60,7 +80,7 @@ class Storage(Database):
         self.__close_connection()
 
 
-    def new_position(self, position : Position):
+    def new_position(self, position : Position) -> None:
 
         self.__open_connection()
 
@@ -70,4 +90,15 @@ class Storage(Database):
         self.csr.execute(insert, values)
         self.conn.commit()
 
+        self.__close_connection()
+
+    def remove_position(self, position : Position) -> None:
+
+        self.__open_connection()
+
+        remove = "DELETE FROM positions where entry_time=? AND ticker_symbol=?"
+
+        self.csr.execute(remove, (position.entryTime, position.symbol))
+
+        self.conn.commit()
         self.__close_connection()
