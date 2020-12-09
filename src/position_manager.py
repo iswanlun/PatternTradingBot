@@ -14,9 +14,9 @@ class Position:
 
     def notify(self, tickPrice):
         if tickPrice >= self.goal:
-            self.__exit(tickPrice)
+            self.exit(tickPrice)
 
-    def __exit(self, exitPoint):
+    def exit(self, exitPoint):
         self.inPosition = False
         self.exitPoint = exitPoint  
 
@@ -48,7 +48,7 @@ class TickManager(TickListener):
         print("Lower BBand " + str(self.lower[-1])) # DEBUG
 
         if (self.rsi < 30) & (tickPrice < self.lower[-1]):
-            self.__enter_position()
+            self.__enter_position(tickPrice)
         
     def __enter_position(self, entryPoint) -> None:
         if len(self.positions) < self.MAX_POSITION_LOAD:
