@@ -11,10 +11,10 @@ class Storage(Database):
         self.__open_connection()
 
         try:
-            create = Path('db_table_creation.txt').read_text()
-            self.csr.executescript(create)
-        except sqlite3.DatabaseError:
-            pass
+            with open('db_setup.sql', 'r') as sql:
+                self.csr.executescript(sql.read())
+        except sqlite3.OperationalError:
+            print("DB already in use")
 
         self.__close_connection()
 
@@ -40,7 +40,7 @@ class Storage(Database):
         
         open = []
 
-        for r in range(len(self.csr.rowcount())):
+        for r in range(self.csr.rowcount):
             row = self.csr.fetchone()
             open.append(Position(row['entry_price'], row['entry_time'], row['ticker_symbol'], row['units']))
 
@@ -64,8 +64,8 @@ class Storage(Database):
 
         self.__open_connection()
 
-        insert = "INSERT INTO positions VALUES (?, ?, ?, ?)"
-        values = (position.entryTime, position.symbol, position.entryPoint, position.units)
+        insert = "INSERT INTO positions VALUES (?, ?, ?, ?, ?, ?)"
+        values = (position.entryTime, position.symbol, position.entryPoint, position.units, None, None)
 
         self.csr.execute(insert, values)
         self.conn.commit()

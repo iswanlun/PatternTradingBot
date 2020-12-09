@@ -1,35 +1,26 @@
 import calendar, time
 from config import config
-'''
-Position will control both database and
-finance opperators
 
-'''
 class Position:
 
-    def __init__(self, entryPoint, symbol, entryTime=None, units=None, exitPoint=None, exitTime=None, inPosition=True) -> None:
-        self.goal = config['targetNet'] * self.entryPoint
+    def __init__(self, entryPoint, symbol, entryTime=None, units=None, exitPoint=None, exitTime=None) -> None:
+        self.spike = config['spikeNet'] * entryPoint
         self.entryPoint = entryPoint
         self.entryTime = entryTime
         self.symbol = symbol
         self.units = units
         self.exitPoint = exitPoint
         self.exitTime = exitTime
-        self.inPosition = inPosition
+        self.inPosition = True
 
     @classmethod 
     def create_position(cls, entryPoint, symbol):
         entryTime = calendar.timegm(time.gmtime())
-        units = config["investmentSize"] / entryPoint
+        print("position created, price {}, time {}".format(str(entryPoint), str(entryTime))) # DEBUG - Swap for broker interaction
+        return cls(entryPoint=entryPoint, symbol=symbol, entryTime=entryTime)
 
-
-
-        return cls(entryPoint=entryPoint, symbol=symbol, entryTime=entryTime, units=units)
-
-
-        
     def notify(self, tickPrice):
-        if tickPrice >= self.goal:
+        if tickPrice >= self.spike:
             self.exit(tickPrice)
 
     def exit(self, exitPoint):
