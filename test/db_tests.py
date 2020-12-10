@@ -4,8 +4,6 @@ sys.path.append(os.getcwd() + "\\src")
 from slq_lite_database import Storage
 from position import Position
 
-
-
 class DBTesting(unittest.TestCase):
 
     def setUp(self) -> None:
@@ -66,8 +64,5 @@ class DBTesting(unittest.TestCase):
         removed = self.storage.closed_positions()
 
         self.assertEqual(len(removed), 0)
-
-
-
 
 unittest.main()

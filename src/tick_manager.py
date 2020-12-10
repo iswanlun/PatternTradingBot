@@ -1,10 +1,11 @@
 
 import talib
-from config import config
 import numpy as np
+from config import config
+from slq_lite_database import Storage
 from tick_listener import TickListener
 from position import Position
-from slq_lite_database import Storage
+
 
 class TickManager(TickListener):
 
@@ -22,6 +23,15 @@ class TickManager(TickListener):
         self.tickHistory = priceHistory
 
         print(self.tickHistory) # DEBUG
+    
+    def tick_event(self, tickPrice):
+
+        for p in self.positions:
+            if not p.inPosition:
+                self.storage.close_position(p)
+                self.positions.remove(p)
+            else:
+                p.notify(tickPrice)
 
     def close_event(self, tickPrice):
         self.tickHistory.append(tickPrice)
@@ -43,12 +53,3 @@ class TickManager(TickListener):
             new_position = Position.create_position(entryPoint, self.SYMBOL)
             self.storage.new_position(new_position)
             self.positions.append(new_position)
-
-    def tick_event(self, tickPrice):
-
-        for p in self.positions:
-            if not p.inPosition:
-                self.storage.close_position(p)
-                self.positions.remove(p)
-            else:
-                p.notify(tickPrice)

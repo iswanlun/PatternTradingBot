@@ -1,13 +1,14 @@
 
 from tick_manager import TickManager
-from coin_gecko import CoinGeckoTrader
+from coin_gecko_api import CoinGeckoTrader
+from binance_stream import BinanceStream
 
 class Bot:
 
     def __init__(self) -> None:
-        self.tradeingApi = CoinGeckoTrader()
-        self.tradeManager = TickManager(self.tradeingApi.return_history())
-        self.tradeingApi.add_listener(self.tradeManager)
-        self.tradeingApi.start()
+        self.tradingApi = BinanceStream()
+        self.tradManager = TickManager(self.tradingApi.return_history())
+        self.tradingApi.add_listener(self.tradManager)
+        self.tradingApi.start()
     
 Bot()
