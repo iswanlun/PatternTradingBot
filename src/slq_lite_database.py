@@ -99,6 +99,6 @@ class Storage(Database):
         remove = "DELETE FROM positions where entry_time=? AND ticker_symbol=?"
 
         self.csr.execute(remove, (position.entryTime, position.symbol))
-
         self.conn.commit()
+        
         self.__close_connection()

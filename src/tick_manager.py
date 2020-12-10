@@ -31,12 +31,15 @@ class TickManager(TickListener):
                 self.storage.close_position(p)
                 self.positions.remove(p)
             else:
-                p.notify(tickPrice)
+                p.notifyTick(tickPrice)
 
     def close_event(self, tickPrice):
         self.tickHistory.append(tickPrice)
-        self.__update(tickPrice)
 
+        for p in self.positions:
+            p.notifyClose(tickPrice)
+
+        self.__update(tickPrice)
         print("Closing candle") # DEBUG
 
     def __update(self, tickPrice):
@@ -44,6 +47,8 @@ class TickManager(TickListener):
         self.upper, self.middle, self.lower = talib.BBANDS(np.array(self.tickHistory), self.BB_PERIOD, self.BB_WIDTH, self.BB_WIDTH, self.BB_TYPE)
         print("RSI " + str(self.rsi)) # DEBUG
         print("Lower BBand " + str(self.lower[-1])) # DEBUG
+
+        
 
         if (self.rsi < 30) & (tickPrice < self.lower[-1]):
             self.__enter_position(tickPrice)

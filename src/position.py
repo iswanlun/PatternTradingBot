@@ -5,6 +5,7 @@ class Position:
 
     def __init__(self, entryPoint, symbol, entryTime=None, units=None, exitPoint=None, exitTime=None) -> None:
         self.spike = config['spikeNet'] * entryPoint
+        self.goal = config['targetNet'] * entryPoint
         self.entryPoint = entryPoint
         self.entryTime = entryTime
         self.symbol = symbol
@@ -19,8 +20,12 @@ class Position:
         print("position created, price {}, time {}".format(str(entryPoint), str(entryTime))) # DEBUG - Swap for broker interaction
         return cls(entryPoint=entryPoint, symbol=symbol, entryTime=entryTime)
 
-    def notify(self, tickPrice):
+    def notifyTick(self, tickPrice):
         if tickPrice >= self.spike:
+            self.exit(tickPrice)
+
+    def notifyClose(self, tickPrice):
+        if tickPrice >= self.goal:
             self.exit(tickPrice)
 
     def exit(self, exitPoint):
