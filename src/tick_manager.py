@@ -1,5 +1,6 @@
 
 import talib
+from threading import Thread, Lock
 import numpy as np
 from config import config
 from slq_lite_database import Storage
@@ -21,26 +22,29 @@ class TickManager(TickListener):
         self.storage = Storage()
         self.positions = self.storage.open_positions()
         self.tickHistory = priceHistory
-
-        print(self.tickHistory) # DEBUG
+        self.positionLock = Lock()
     
-    def tick_event(self, tickPrice):
+    def tick_event(self, tickPrice, closePeriod):
+        thread = Thread(target=self.__tick_worker, args=(tickPrice, closePeriod))
+        thread.start()
+
+    def __tick_worker(self, tickPrice, onClose):
+        print("tick event thread started")
+        self.positionLock.acquire()
 
         for p in self.positions:
-            if not p.inPosition:
+            if p.inPosition:
+                p.notify(tickPrice, onClose)
+            else:
                 self.storage.close_position(p)
                 self.positions.remove(p)
-            else:
-                p.notifyTick(tickPrice)
 
-    def close_event(self, tickPrice):
-        self.tickHistory.append(tickPrice)
+        self.positionLock.release()
 
-        for p in self.positions:
-            p.notifyClose(tickPrice)
-
-        self.__update(tickPrice)
-        print("Closing candle") # DEBUG
+        if onClose:
+            self.tickHistory.append(tickPrice)
+            self.__update(tickPrice)
+            print("Closing candle") # DEBUG
 
     def __update(self, tickPrice):
         self.rsi = talib.RSI(np.array(self.tickHistory), self.RSI_PERIOD)[-1]
@@ -48,13 +52,15 @@ class TickManager(TickListener):
         print("RSI " + str(self.rsi)) # DEBUG
         print("Lower BBand " + str(self.lower[-1])) # DEBUG
 
-        
-
         if (self.rsi < 30) & (tickPrice < self.lower[-1]):
             self.__enter_position(tickPrice)
+        
+        self.tickHistory = self.tickHistory[-50:]
         
     def __enter_position(self, entryPoint) -> None:
         if len(self.positions) < self.MAX_POSITION_LOAD:
             new_position = Position.create_position(entryPoint, self.SYMBOL)
+            self.positionLock.acquire()
             self.storage.new_position(new_position)
             self.positions.append(new_position)
+            self.positionLock.release()

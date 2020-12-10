@@ -72,7 +72,7 @@ class Storage(Database):
         self.__open_connection()
 
         update = "UPDATE positions SET exit_time=?, exit_price=? WHERE entry_time=? AND ticker_symbol=?"
-        values = (position.entryTime, position.exitPoint, position.entryTime, position.symbol)
+        values = (position.exitTime, position.exitPoint, position.entryTime, position.symbol) # NEEDS UNITS TO BE ADDED
 
         self.csr.execute(update, values)
         self.conn.commit()

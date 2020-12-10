@@ -13,7 +13,7 @@ class CoinGeckoTrader(TickerAPI):
     def __init__(self) -> None:
         self.listeners = []
         self.tickTimer = RepeatTimer(2)
-        self.closeTimer = RepeatTimer(10)
+        self.closeTimer = RepeatTimer(config['period'])
         
     def add_listener(self, listener : TickListener):
         self.listeners.append(listener)
@@ -27,7 +27,7 @@ class CoinGeckoTrader(TickerAPI):
         tickPrice = jsonData['ethereum']['usd']
 
         for l in self.listeners:
-            l.tick_event(tickPrice)
+            l.tick_event(tickPrice, False)
 
         pprint.pprint(jsonData) # DEBUG
 
@@ -36,7 +36,7 @@ class CoinGeckoTrader(TickerAPI):
         closePrice = jsonData['ethereum']['usd']
 
         for l in self.listeners:
-            l.close_event(closePrice)
+            l.tick_event(closePrice, True)
 
         pprint.pprint(jsonData) # DEBUG
 

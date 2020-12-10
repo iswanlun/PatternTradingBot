@@ -1,7 +1,4 @@
 class TickListener:
 
-    def close_event(tickPrice : float):
-        raise NotImplementedError
-
-    def tick_event(closePrice : float):
+    def tick_event(tickPrice : float, onClose : bool):
         raise NotImplementedError

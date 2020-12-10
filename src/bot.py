@@ -7,8 +7,9 @@ class Bot:
 
     def __init__(self) -> None:
         self.tradingApi = BinanceStream()
-        self.tradManager = TickManager(self.tradingApi.return_history())
-        self.tradingApi.add_listener(self.tradManager)
+        # self.tradingApi = CoinGeckoTrader()
+        self.tradingManager = TickManager(self.tradingApi.return_history())
+        self.tradingApi.add_listener(self.tradingManager)
         self.tradingApi.start()
     
 Bot()

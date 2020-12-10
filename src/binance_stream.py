@@ -1,5 +1,5 @@
 import json, time, requests, calendar
-from threading import Timer
+from timer import RepeatTimer
 import websocket, pprint
 from ticker_api import TickerAPI
 from tick_listener import TickListener
@@ -13,27 +13,22 @@ HIST = config['coinGeckoHist']
 class BinanceStream(TickerAPI):
 
     def __init__(self) -> None:
-        self.listeners = []
+        self.listener = None
         self.ws = None
         self.isClosed = False
-        self.closeTimer = Timer(config['period'])
+        self.closeTimer = RepeatTimer(config['period'])
             
     def add_listener(self, listener: TickListener):
-        self.listeners.append(listener)
+        self.listener = listener
         
     def on_tick(self, raw):
-        tickData = json.loads(raw)
-        tickPrice = tickData['k']['c']
+        tickPrice = json.loads(raw)['k']['c']
 
-        if self.isClosed:
-            self.isClosed = False
-            for l in self.listeners:
-                l.close_event(tickPrice)
-        else:
-            for l in self.listeners:
-                l.tick_event(tickPrice)
+        self.listener.tick_event(float(tickPrice), self.isClosed)
+        self.isClosed = False
+        print("Last tick {}".format(tickPrice)) # DEBUG 
         
-    def on_close(self, tickPrice):
+    def on_close(self):
         self.isClosed = True
         
     def error(self, error):
