@@ -8,7 +8,8 @@ from config import config
 # https://binance-docs.github.io/apidocs/spot/en/#public-api-definitions
 
 WSS = config['binanceWSS']
-HIST = config['coinGeckoHist']
+TIME = config['binanceSysTime']
+HIST = config['binanceHist']
 
 class BinanceStream(TickerAPI):
 
@@ -41,10 +42,16 @@ class BinanceStream(TickerAPI):
         self.start()
 
     def return_history(self) -> list:
-        hist = HIST.replace("X", str(calendar.timegm(time.gmtime()) - 30000))
-        hist = hist.replace("Y", str(calendar.timegm(time.gmtime())))
+        sysTime = requests.get(TIME).json()
+        endTime = sysTime['serverTime'] 
+        startTime = endTime - 30000000 # last 100 5 min intervals
+        hist = HIST.replace("X", str(startTime))
+        hist = hist.replace("Y", str(endTime))
         histData = requests.get(hist).json()
-        return [x[1] for x in histData['prices']][0::5]
+        histValues = []
+        for n in histData:
+            histValues.append(float(n[1]))
+        return histValues
 
     def start(self):
         self.closeTimer.start(target=self.on_close)

@@ -1,4 +1,3 @@
-
 import talib
 from threading import Thread, Lock
 import numpy as np
@@ -10,7 +9,9 @@ from position import Position
 
 class TickManager(TickListener):
 
-    def __init__(self, priceHistory)  -> None:  
+    def __init__(self, priceHistory)  -> None:
+        self.MA_PERIOD = config['maPeriod']
+        self.MA_TYPE = config['maType']
         self.RSI_PERIOD = config['rsiPeriod']
         self.BB_PERIOD = config['bBandRange']
         self.BB_WIDTH = config['bBandWidth']
@@ -34,33 +35,37 @@ class TickManager(TickListener):
 
         for p in self.positions:
             if p.inPosition:
-                p.notify(tickPrice, onClose)
+                p.notify(tickPrice)
             else:
                 self.storage.close_position(p)
                 self.positions.remove(p)
 
+        if onClose:
+            self.__update(tickPrice)
+
         self.positionLock.release()
 
-        if onClose:
-            self.tickHistory.append(tickPrice)
-            self.__update(tickPrice)
-            print("Closing candle") # DEBUG
-
     def __update(self, tickPrice):
-        self.rsi = talib.RSI(np.array(self.tickHistory), self.RSI_PERIOD)[-1]
-        self.upper, self.middle, self.lower = talib.BBANDS(np.array(self.tickHistory), self.BB_PERIOD, self.BB_WIDTH, self.BB_WIDTH, self.BB_TYPE)
-        print("RSI " + str(self.rsi)) # DEBUG
-        print("Lower BBand " + str(self.lower[-1])) # DEBUG
 
-        if (self.rsi < 30) & (tickPrice < self.lower[-1]):
+        self.tickHistory.append(tickPrice)
+
+        ma = talib.MA(np.array(self.tickHistory), self.MA_PERIOD, self.MA_TYPE)[-1]
+        rsi = talib.RSI(np.array(self.tickHistory), self.RSI_PERIOD)[-1]
+        upper, middle, lower = talib.BBANDS(np.array(self.tickHistory), self.BB_PERIOD, self.BB_WIDTH, self.BB_WIDTH, self.BB_TYPE)
+        print("RSI {}".format(str(rsi))) # DEBUG
+        print("Lower BBand {}".format(str(lower[-1]))) # DEBUG
+        print("Moving Average {}".format(str(ma))) # DEBUG
+
+        if (rsi < 30) & (tickPrice < lower[-1]):
             self.__enter_position(tickPrice)
-        
-        self.tickHistory = self.tickHistory[-50:]
+
+        for p in self.positions:
+            p.notify_close(tickPrice, ma)
+
+        self.tickHistory = self.tickHistory[-100:]
         
     def __enter_position(self, entryPoint) -> None:
         if len(self.positions) < self.MAX_POSITION_LOAD:
             new_position = Position.create_position(entryPoint, self.SYMBOL)
-            self.positionLock.acquire()
             self.storage.new_position(new_position)
             self.positions.append(new_position)
-            self.positionLock.release()

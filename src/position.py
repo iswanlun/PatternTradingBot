@@ -20,10 +20,12 @@ class Position:
         print("position created, price {}, time {}".format(str(entryPoint), str(entryTime))) # DEBUG - Swap for broker interaction
         return cls(entryPoint=entryPoint, symbol=symbol, entryTime=entryTime)
 
-    def notify(self, tickPrice, onClose):
+    def notify(self, tickPrice):
         if tickPrice >= self.spike:
             self.exit(tickPrice)
-        elif onClose & (tickPrice >= self.goal):
+
+    def notify_close(self, tickPrice, movingAverage):
+        if (tickPrice >= movingAverage) & (tickPrice >= self.goal):
             self.exit(tickPrice)
 
     def exit(self, exitPoint):
