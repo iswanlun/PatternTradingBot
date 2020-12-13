@@ -45,9 +45,12 @@ class TickManager(TickListener):
 
         self.tickHistory.append(tickPrice)
 
-        self.tradeAlgorithm.evaluate(self.tickHistory, self.positions)
+        ma = self.tradeAlgorithm.evaluate(self.tickHistory)
 
-        self.tickHistory = self.tickHistory[-100:]
+        for p in self.positions:
+            p.notify_close(tickPrice, ma)
+
+        self.tickHistory = self.tickHistory[-120:]
         
     def __enter_position(self) -> None:
         if len(self.positions) < self.MAX_POSITION_LOAD:

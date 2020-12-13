@@ -44,7 +44,7 @@ class BinanceStream(TickerAPI):
     def return_history(self) -> list:
         sysTime = requests.get(TIME).json()
         endTime = sysTime['serverTime'] 
-        startTime = endTime - 30000000 # last 100 5 min intervals
+        startTime = endTime - (config['period'] * 120000) # last 120 period intervals
         hist = HIST.replace("X", str(startTime))
         hist = hist.replace("Y", str(endTime))
         histData = requests.get(hist).json()

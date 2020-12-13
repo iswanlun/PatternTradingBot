@@ -13,18 +13,16 @@ class TradeAlgorithm():
         self.PERIOD = config['period']
         self.enterTarget = enterTarget
 
-    def evaluate(self, close : list, positions : list) -> int:
+    def evaluate(self, close : list) -> int:
         ma = talib.MA(np.array(close), self.MA_PERIOD, self.MA_TYPE)[-1]
-        rsi = talib.RSI(np.array(close), self.RSI_PERIOD)[-1]
+        rsi = talib.RSI(np.array(close), self.RSI_PERIOD)
         upper, middle, lower = talib.BBANDS(np.array(close), self.BB_PERIOD, self.BB_WIDTH, self.BB_WIDTH, self.BB_TYPE)
-        print("RSI {}".format(str(rsi))) # DEBUG
+        print("RSI {}".format(str(rsi[-1]))) # DEBUG
+        print("Candle : {} {}".format(close[-2], close[-1]))
         print("Lower BBand {}".format(str(lower[-1]))) # DEBUG
         print("Moving Average {}".format(str(ma))) # DEBUG
 
-        for p in positions:
-            p.notify_close(close[-1], ma)
-
-        if (rsi < 30) & (close[-1] < lower[-1]):
+        if (rsi[-2] <= 30) & (close[-2] < lower[-1] < close[-1]):
             self.enterTarget()
 
         return ma
